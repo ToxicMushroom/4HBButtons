@@ -1,5 +1,6 @@
 package me.toxicmushroom.fourhbbuttons;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -91,11 +92,17 @@ public class MainActivity extends AppCompatActivity {
         if (Variables.selectedDevice != null) openBluetoothTunnel();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void addButtonListener(final Button button) {
-        button.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        button.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                sendCode(button, hasFocus);
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_HOVER_ENTER || event.getAction() == MotionEvent.ACTION_DOWN) {
+                    sendCode(button, true);
+                } else if (event.getAction() == MotionEvent.ACTION_HOVER_EXIT || event.getAction() == MotionEvent.ACTION_UP) {
+                    sendCode(button, false);
+                }
+                return false;
             }
         });
     }
@@ -218,27 +225,29 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (btn.getId() == leftBottomButton.getId()) {
                 if (focus)
-                    bluetoothOutputStream.write(("<" + (255 - speed) + ">").getBytes());
-                else bluetoothOutputStream.write(("<" + 255 + ">").getBytes());
+                    bluetoothOutputStream.write(("<" + (255 - speed) + ">|").getBytes());
+                else bluetoothOutputStream.write(("<" + 255 + ">|").getBytes());
 
             } else if (btn.getId() == leftTopButton.getId()) {
                 if (focus)
-                    bluetoothOutputStream.write(("<" + (255 + speed) + ">").getBytes());
-                else bluetoothOutputStream.write(("<" + 255 + ">").getBytes());
+                    bluetoothOutputStream.write(("<" + (255 + speed) + ">|").getBytes());
+                else bluetoothOutputStream.write(("<" + 255 + ">|").getBytes());
 
             } else if (btn.getId() == rightBottomButton.getId()) {
                 if (focus)
-                    bluetoothOutputStream.write(("<" + (766 - speed) + ">").getBytes());
-                else bluetoothOutputStream.write(("<" + 766 + ">").getBytes());
+                    bluetoothOutputStream.write(("<" + (766 - speed) + ">|").getBytes());
+                else bluetoothOutputStream.write(("<" + 766 + ">|").getBytes());
 
             } else if (btn.getId() == rightTopButton.getId()) {
                 if (focus)
-                    bluetoothOutputStream.write(("<" + (766 + speed) + ">").getBytes());
-                else bluetoothOutputStream.write(("<" + 766 + ">").getBytes());
+                    bluetoothOutputStream.write(("<" + (766 + speed) + ">|").getBytes());
+                else bluetoothOutputStream.write(("<" + 766 + ">|").getBytes());
 
+            } else {
+                Toast.makeText(this, "Not a button :hmm:", Toast.LENGTH_LONG).show();
             }
         } catch (IOException e) {
-            Toast.makeText(this, "Err: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Error", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
